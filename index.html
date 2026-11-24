@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CV Job Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: search-engine page. Header with query box + filters, results column on the left, CV/profile panel on the right. */
+  --bg:#f5f7f9;
+  --surface:#ffffff;
+  --ink:#18202c;
+  --muted:#5a6475;
+  --line:#e2e6ec;
+  --accent:#0e6b6b;
+  --accent-soft:#e3f1f0;
+  --link:#1d48c4;
+  --visited:#6a3cb0;
+  --good:#1f7a3a; --good-soft:#e5f3e8;
+  --mid:#9a6200; --mid-soft:#fbf0dc;
+  --low:#8a8f99; --low-soft:#eef0f3;
+  --danger:#b42318;
+  --font-display:"Sora", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161d; --surface:#18202a; --ink:#e6eaf0; --muted:#9aa4b4; --line:#2a3440;
+    --accent:#5cc8c0; --accent-soft:#16302f; --link:#8fb0ff; --visited:#c5a6f5;
+    --good:#6fd08c; --good-soft:#173322; --mid:#f0b552; --mid-soft:#3a2c12; --low:#9aa1ad; --low-soft:#232b35;
+    --danger:#ff8a80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161d; --surface:#18202a; --ink:#e6eaf0; --muted:#9aa4b4; --line:#2a3440;
+  --accent:#5cc8c0; --accent-soft:#16302f; --link:#8fb0ff; --visited:#c5a6f5;
+  --good:#6fd08c; --good-soft:#173322; --mid:#f0b552; --mid-soft:#3a2c12; --low:#9aa1ad; --low-soft:#232b35;
+  --danger:#ff8a80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Header */
+header.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top-inner{max-width:1180px;margin:0 auto;padding:14px 20px 0;display:grid;gap:12px}
+.row1{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-.02em;white-space:nowrap}
+.brand span{color:var(--accent)}
+form.q{flex:1;min-width:260px;max-width:640px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 18px;background:var(--surface);box-shadow:0 1px 4px rgba(16,24,40,.06)}
+form.q:focus-within{border-color:var(--accent)}
+form.q input{flex:1;border:0;outline:0;background:transparent;padding:8px 0;min-width:0}
+.btn{border:0;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn{color:#0b1416}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#0b1416}}
+.btn:disabled{opacity:.55;cursor:progress}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.filters{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:14px}
+.filters .lbl{color:var(--muted);font-weight:600;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;cursor:pointer;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:10px 12px;border-bottom:3px solid transparent;color:var(--muted);cursor:pointer;white-space:nowrap;font-size:14.5px;font-weight:500}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+/* Main layout */
+main{max-width:1180px;margin:0 auto;padding:18px 20px 60px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:36px;align-items:start}
+@media (max-width:900px){
+  main{grid-template-columns:minmax(0,1fr);gap:20px}
+  /* On narrow screens: CV card first, then results, then profile and the trust notes. */
+  main > aside{display:contents}
+  #cvcard{order:-1}
+  #profile{order:1}
+  .banner label.btn{display:none}
+  .howto{order:2}
+}
+.stats{color:var(--muted);font-size:14px;margin:0 0 14px}
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--mid-soft);color:var(--ink);border:1px solid color-mix(in srgb, var(--mid) 35%, transparent);border-radius:var(--radius);padding:10px 14px;margin-bottom:18px;font-size:15px}
+.banner b{color:var(--mid)}
+.results{display:grid;gap:26px;max-width:680px}
+.res{display:grid;gap:3px}
+.src{display:flex;gap:10px;align-items:center}
+.fav{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;background:var(--c,#556);flex:none;font-family:var(--font-display)}
+.site{font-size:14px;line-height:1.2}
+.crumb{font-size:12.5px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.res h3{margin:4px 0 0;font-size:20px;font-weight:500;line-height:1.3;text-wrap:balance}
+.res h3 a{color:var(--link);text-decoration:none}
+.res h3 a:visited{color:var(--visited)}
+.res h3 a:hover{text-decoration:underline}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:13.5px;color:var(--muted)}
+.pill{font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.mid{background:var(--mid-soft);color:var(--mid)}
+.pill.low{background:var(--low-soft);color:var(--low)}
+.trust{font-size:12.5px;font-weight:600;border-radius:999px;padding:1px 9px 1px 22px;position:relative}
+.trust::before{content:"";position:absolute;left:8px;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:currentColor}
+.t-direct{background:var(--good-soft);color:var(--good)}
+.t-platform{background:var(--accent-soft);color:var(--accent)}
+.howto ul{margin:0 0 8px;padding-left:18px;display:grid;gap:4px}
+.sortrow{display:flex;align-items:center;gap:10px;margin:-4px 0 4px;font-size:14px}
+.sortrow .lbl{color:var(--muted);font-weight:600;font-size:13px}
+.linkbtn{border:0;background:none;color:var(--link);font-weight:600;cursor:pointer;padding:0;font-size:inherit}
+.applybtn{margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 12px;font-size:13px;cursor:pointer;color:var(--muted)}
+.applybtn[aria-pressed="true"]{background:var(--good-soft);color:var(--good);border-color:transparent;font-weight:600}
+.job.applied{opacity:.55}
+.empty p{margin:0 0 6px}
+.snip{margin:2px 0 0;color:var(--ink);font-size:15px;max-width:65ch}
+.kw{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.kw span{font-size:12.5px;background:var(--low-soft);color:var(--muted);padding:1px 8px;border-radius:6px}
+.sitelinks{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:14px}
+.sitelinks a{color:var(--link);text-decoration:none}
+.sitelinks a:visited{color:var(--visited)}
+.sitelinks a:hover{text-decoration:underline}
+.sitelinks a.fresh{font-weight:600;color:var(--good)}
+.empty{color:var(--muted);padding:24px 0}
+.skel{display:grid;gap:10px}
+.skel div{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--low-soft),var(--line),var(--low-soft));background-size:200% 100%;animation:sh 1.3s infinite linear}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion: reduce){.skel div{animation:none}}
+.status{font-weight:600;color:var(--accent);margin-bottom:12px}
+
+/* Aside */
+aside{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card h2{font-family:var(--font-display);font-size:15px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
+.drop{display:grid;place-items:center;text-align:center;gap:4px;border:1.5px dashed var(--line);border-radius:var(--radius);padding:18px 12px;cursor:pointer;color:var(--muted);font-size:14px}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop strong{color:var(--ink);font-size:15px}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.file{margin:10px 0 0;font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.file b{color:var(--ink)}
+details{margin-top:10px;font-size:14px}
+summary{cursor:pointer;color:var(--accent);font-weight:600}
+textarea{width:100%;min-height:120px;margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--bg);font-size:13.5px;resize:vertical}
+.go{width:100%;margin-top:12px;padding:11px 18px;font-size:15.5px;border-radius:var(--radius)}
+.err{color:var(--danger);font-size:14px;margin:8px 0 0}
+.note{color:var(--muted);font-size:13px;margin:8px 0 0}
+.exp{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.exp .big{font-family:var(--font-display);font-size:30px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.exp .unit{color:var(--muted);font-size:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:14px;margin-top:10px;align-items:center}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+select{border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--surface);font-size:14px}
+.headline{margin:2px 0 0;font-size:14.5px;color:var(--muted)}
+.pname{font-family:var(--font-display);font-weight:600;font-size:17px}
+.sk{display:flex;flex-wrap:wrap;gap:5px}
+.sk span{font-size:13px;border:1px solid var(--line);border-radius:6px;padding:1px 8px}
+.roles{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.roles li{display:flex;align-items:center;gap:8px;font-size:14.5px}
+.roles li .t{flex:1;min-width:0;overflow-wrap:anywhere}
+.x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:2px 6px;border-radius:6px}
+.x:hover{background:var(--low-soft);color:var(--danger)}
+.tips{margin:0;padding-left:18px;font-size:14px;display:grid;gap:4px}
+.sec{margin-top:14px}
+.sec h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 6px;font-weight:700}
+.howto{font-size:13.5px;color:var(--muted)}
+.howto p{margin:0 0 6px}
+.mob{display:none}
+
+/* Phone layout */
+@media (max-width:640px){
+  body{font-size:15.5px}
+  header.top{position:static}
+  .top-inner{padding:12px 16px 0;gap:10px}
+  .row1{gap:10px}
+  .brand{font-size:19px}
+  form.q{flex:1 1 100%;min-width:0;max-width:none;padding:3px 4px 3px 14px}
+  form.q .btn{padding:8px 14px}
+  .filters{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 10px;align-items:center}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px 0;margin-right:-16px;padding-right:16px}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{white-space:nowrap;padding:6px 13px}
+  .tabs{margin:0 -16px;padding:0 12px}
+  .tab{padding:11px 10px}
+  main{padding:14px 16px 48px;gap:16px}
+  .banner{padding:10px 12px;font-size:14.5px}
+  .stats{font-size:13px}
+  .results{gap:22px}
+  .res h3{font-size:18px}
+  .snip{font-size:14.5px}
+  .sitelinks{gap:2px 16px}
+  .sitelinks a{padding:5px 0}
+  .card{padding:14px}
+  .desk{display:none}
+  .mob{display:inline}
+  .drop{padding:16px 12px}
+  .roles li{font-size:14px}
+  .x{padding:6px 10px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="row1">
+      <div class="brand">CV<span>Jobs</span></div>
+      <form class="q" id="qform" autocomplete="off">
+        <input id="qinput" type="text" aria-label="Add a job title to search" placeholder="Add a job title to search, e.g. MLOps Engineer">
+        <button class="btn" type="submit">Add search</button>
+      </form>
+    </div>
+    <div class="filters">
+      <span class="lbl">Location</span>
+      <div class="chips" id="locchips"></div>
+      <span class="lbl">Posted</span>
+      <div class="chips" id="postchips"></div>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Where to search"></nav>
+  </div>
+</header>
+
+<main>
+  <section aria-live="polite">
+    <div id="banner"></div>
+    <p class="stats" id="stats"></p>
+    <div class="results" id="results"></div>
+  </section>
+
+  <aside>
+    <div class="card" id="cvcard">
+      <h2>Your CV</h2>
+      <label class="drop" id="drop" for="cvfile">
+        <strong class="desk">Drop your CV here or click to choose</strong>
+        <strong class="mob">Tap to choose your CV</strong>
+        <span>PDF, Word (.docx) or .txt</span>
+        <input id="cvfile" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+      </label>
+      <p class="file" id="fileinfo">No CV loaded yet.</p>
+      <details id="pastebox">
+        <summary>Or paste the CV text</summary>
+        <textarea id="cvtext" aria-label="CV text" placeholder="Paste the full text of your CV"></textarea>
+      </details>
+      <button class="btn go" id="gobtn" type="button">Find matching jobs</button>
+      <p class="err" id="err" hidden></p>
+      <p class="note" id="aiNote">Claude reads your CV, works out your real experience level and picks the job titles you'd get shortlisted for.</p>
+    </div>
+
+    <div class="card" id="profile"></div>
+
+    <div class="card howto">
+      <h2>Where the jobs come from</h2>
+      <p><b>Live jobs</b> are pulled straight from the hiring systems of over 80 companies with teams in India (Greenhouse, Lever, Ashby and SmartRecruiters), including Databricks, Stripe, MongoDB, Okta, Zscaler, Sarvam AI, Meesho, Paytm, Swiggy and Bosch. Each title opens that exact job on the company's own careers page, where you apply directly.</p>
+      <p>Only titles that match your target roles and level are shown. Senior, lead, manager and non-engineering roles are left out.</p>
+      <p><b>LinkedIn and Naukri tabs</b> open filtered searches on those sites, sorted newest first. No Google, Indeed or job-copying sites anywhere.</p>
+      <h2 style="margin-top:12px">Before you apply</h2>
+      <ul>
+        <li>On LinkedIn and Naukri, skip posts from consultancies that won't name the client, and anything marked "Reposted".</li>
+        <li>On LinkedIn, skip posts from job-relay accounts (names like "Jobs via…", Jobgether, Talent.com). They are middlemen posting other companies' jobs.</li>
+        <li>If the post links to the company's careers page, apply there rather than through the board.</li>
+        <li>Never pay a fee. Real employers don't charge for interviews, training or offer letters.</li>
+      </ul>
+      <h2 style="margin-top:12px">Newest first</h2>
+      <p>Live jobs are sorted by the date the company published them, and the date filter starts at the past month (switch to 24 hours or 3 days for only the freshest). Applying in the first day or two gets you seen before the recruiter's inbox fills up. Use Mark applied to keep track.</p>
+      <p>Links you've opened turn purple, so you can see what you've already checked.</p>
+    </div>
+  </aside>
+</main>
+
+<script src="lib/pdf.min.js"></script>
+<script src="lib/mammoth.browser.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- constants ---------- */
+const LOCS = [
+  {id:"bangalore", label:"Bangalore", li:"Bengaluru, Karnataka, India", nk:"bangalore", in:"Bengaluru, Karnataka", g:"Bangalore"},
+  {id:"hyderabad", label:"Hyderabad", li:"Hyderabad, Telangana, India", nk:"hyderabad", in:"Hyderabad, Telangana", g:"Hyderabad"},
+  {id:"kochi", label:"Kochi", li:"Kochi, Kerala, India", nk:"kochi", in:"Kochi, Kerala", g:"Kochi"},
+  {id:"chennai", label:"Chennai", li:"Chennai, Tamil Nadu, India", nk:"chennai", in:"Chennai, Tamil Nadu", g:"Chennai"},
+  {id:"pune", label:"Pune", li:"Pune, Maharashtra, India", nk:"pune", in:"Pune, Maharashtra", g:"Pune"},
+  {id:"mumbai", label:"Mumbai", li:"Mumbai, Maharashtra, India", nk:"mumbai", in:"Mumbai, Maharashtra", g:"Mumbai"},
+  {id:"ncr", label:"Delhi NCR", li:"Delhi, India", nk:"delhi-ncr", in:"Delhi", g:"Delhi NCR"},
+  {id:"remote", label:"Remote", li:"India", nk:null, in:"Remote", g:"remote India", remote:true},
+  {id:"india", label:"Anywhere in India", li:"India", nk:null, in:"India", g:"India"}
+];
+const POSTED = [
+  {id:"day", label:"24 hours", li:"r86400", nk:1, g:"d", text:"past 24 hours"},
+  {id:"3d", label:"3 days", li:"r259200", nk:3, g:"d3", text:"past 3 days"},
+  {id:"week", label:"Week", li:"r604800", nk:7, g:"w", text:"past week"},
+  {id:"month", label:"Month", li:"r2592000", nk:30, g:"m", text:"past month"},
+  {id:"any", label:"Any time", li:null, nk:null, g:null, text:"any time"}
+];
+/* Sources. Live jobs come only from companies' own hiring systems (direct links to each posting).
+   LinkedIn and Naukri are offered as searches on those sites. No Google, no aggregators. */
+const PLATFORMS = [
+  {id:"linkedin", name:"LinkedIn", short:"in", color:"#0a66c2", trust:"platform", crumb:"linkedin.com › jobs › search"},
+  {id:"naukri", name:"Naukri", short:"N", color:"#2a5cd6", trust:"platform", crumb:"naukri.com › jobs"}
+];
+const TRUST = {
+  direct:{label:"Direct from employer", cls:"t-direct"},
+  platform:{label:"Employer-posted platform", cls:"t-platform"}
+};
+const TABS = [{id:"live", label:"Live jobs"},{id:"linkedin", label:"LinkedIn searches"},{id:"naukri", label:"Naukri searches"},{id:"companies", label:"Companies"}];
+/* Company hiring systems, each checked for Indian openings. [system, board id, display name] */
+const SOURCES = [
+  ["gh","databricks","Databricks"],["gh","stripe","Stripe"],["gh","okta","Okta"],["gh","mongodb","MongoDB"],["gh","zscaler","Zscaler"],["gh","rubrik","Rubrik"],
+  ["gh","gitlab","GitLab"],["gh","highradius","HighRadius"],["gh","sigmoid","Sigmoid"],["gh","zetaglobal","Zeta Global"],["gh","inmobi","InMobi"],["gh","netradyne","Netradyne"],
+  ["gh","celonis","Celonis"],["gh","gleanwork","Glean"],["gh","deepintent","DeepIntent"],["gh","twilio","Twilio"],["gh","hackerrank","HackerRank"],["gh","elastic","Elastic"],
+  ["gh","zoominfo","ZoomInfo"],["gh","harnessinc","Harness"],["gh","glance","Glance"],["gh","agoda","Agoda"],["gh","druva","Druva"],["gh","airbnb","Airbnb"],
+  ["gh","coinbase","Coinbase"],["gh","datadog","Datadog"],["gh","groww","Groww"],["gh","truefoundry","TrueFoundry"],["gh","observeai","Observe.AI"],["gh","samsara","Samsara"],
+  ["gh","newrelic","New Relic"],["gh","xendit","Xendit"],["gh","adyen","Adyen"],["gh","figma","Figma"],["gh","scaleai","Scale AI"],
+  ["lever","paytm","Paytm"],["lever","meesho","Meesho"],["lever","zeta","Zeta"],["lever","mindtickle","Mindtickle"],["lever","levelai","Level AI"],["lever","cred","CRED"],
+  ["lever","100ms","100ms"],["lever","fampay","FamPay"],["lever","neuron7","Neuron7.ai"],["lever","pocketfm","Pocket FM"],
+  ["ashby","tekion","Tekion"],["ashby","sarvam","Sarvam AI"],["ashby","bureau","Bureau"],["ashby","uipath","UiPath"],["ashby","plane","Plane"],["ashby","elevenlabs","ElevenLabs"],
+  ["ashby","snowflake","Snowflake"],["ashby","spotdraft","SpotDraft"],["ashby","composio","Composio"],["ashby","atlan","Atlan"],["ashby","thoughtworks","Thoughtworks"],["ashby","notion","Notion"],
+  ["sr","BoschGroup","Bosch"],["sr","Swiggy","Swiggy"],["sr","ServiceNow","ServiceNow"],["sr","NielsenIQ","NielsenIQ"],["sr","Experian","Experian"],["sr","Freshworks","Freshworks"],
+  ["sr","Endava","Endava"],["sr","Continental","Continental"],
+  ["gh","purestorage","Pure Storage"],["gh","pubmatic","PubMatic"],["gh","toast","Toast"],["gh","smartsheet","Smartsheet"],["gh","fivetran","Fivetran"],["gh","netskope","Netskope"],
+  ["gh","sumologic","Sumo Logic"],["gh","zuora","Zuora"],["gh","yugabyte","Yugabyte"],["lever","hevodata","Hevo Data"],["lever","acceldata","Acceldata"],
+  ["ashby","ema","Ema"],["ashby","kong","Kong"],["ashby","redis","Redis"],["ashby","lyzr","Lyzr"],["ashby","gigaml","Giga"]
+];
+const SYS = {
+  gh:{label:"Greenhouse", board:id=>"https://job-boards.greenhouse.io/"+id},
+  lever:{label:"Lever", board:id=>"https://jobs.lever.co/"+id},
+  ashby:{label:"Ashby", board:id=>"https://jobs.ashbyhq.com/"+id},
+  sr:{label:"SmartRecruiters", board:id=>"https://jobs.smartrecruiters.com/"+id}
+};
+
+const EXAMPLE = {
+  isExample:true,
+  fileName:null,
+  profile:{
+    name:"Example profile",
+    headline:"AI engineer building LLM and RAG systems for enterprise clients",
+    years_experience:1.2,
+    experience_note:"Example data",
+    seniority:"Junior",
+    core_skills:["Python","LLMs","RAG","LangChain","FastAPI","PostgreSQL","Docker","Computer vision","PyTorch"],
+    cv_tips:[]
+  },
+  roles:[
+    {title:"Generative AI Engineer", fit:92, why:"Example: production LLM and RAG systems delivered to enterprise clients match what GenAI teams hire for.", keywords:["LLMs","RAG","Python"]},
+    {title:"AI Engineer", fit:90, why:"Example: end-to-end ownership of shipped AI systems fits generalist AI engineer postings.", keywords:["Python","FastAPI","LLMs"]},
+    {title:"LLM Engineer", fit:86, why:"Example: prompt pipelines, retrieval and evaluation work lines up with LLM engineer roles.", keywords:["LangChain","RAG"]},
+    {title:"Applied AI Engineer", fit:84, why:"Example: client-facing delivery of applied ML fits applied AI teams at product companies.", keywords:["Python","PyTorch"]},
+    {title:"Machine Learning Engineer", fit:76, why:"Example: ML fundamentals are there; fewer MLOps and training-at-scale signals than these postings ask for.", keywords:["PyTorch","Docker"]},
+    {title:"Computer Vision Engineer", fit:68, why:"Example: one strong vision project, but less depth than dedicated CV roles expect.", keywords:["Computer vision"]}
+  ],
+  companies:[
+    {name:"Fractal Analytics", domain:"fractal.ai", why:"Large applied AI consultancy with steady junior GenAI hiring."},
+    {name:"Tiger Analytics", domain:"tigeranalytics.com", why:"Hires 1–3 yr ML and GenAI engineers for client delivery."},
+    {name:"Sigmoid", domain:"sigmoid.com", why:"Data and AI engineering services; Bangalore hub."},
+    {name:"Kore.ai", domain:"kore.ai", why:"Conversational AI platform hiring LLM engineers in Hyderabad."},
+    {name:"Yellow.ai", domain:"yellow.ai", why:"GenAI customer-service platform, Bangalore."},
+    {name:"Observe.AI", domain:"observe.ai", why:"Speech and LLM analytics product team in Bangalore."},
+    {name:"Uniphore", domain:"uniphore.com", why:"Conversational AI product company with Indian engineering centres."},
+    {name:"Gnani.ai", domain:"gnani.ai", why:"Voice AI startup building Indic LLMs, Bangalore."}
+  ]
+};
+
+/* ---------- state ---------- */
+const STORE_KEY = "cvjobs.v1";
+let state = {
+  isExample:true, fileName:null, cvText:"",
+  profile:EXAMPLE.profile, roles:EXAMPLE.roles, companies:EXAMPLE.companies,
+  locs:["bangalore","hyderabad","remote"], posted:"month", tab:"live", expOverride:null, v2:true, v3:true, sort:"new", applied:{}
+};
+try{
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if(saved && typeof saved === "object") state = Object.assign(state, saved);
+}catch(e){}
+if(!state.v3){ state.tab = "live"; state.posted = "month"; state.v3 = true; }
+if(!TABS.some(t=>t.id===state.tab)) state.tab = "live";
+if(!state.v2){ state.posted = "3d"; state.v2 = true; }
+if(state.isExample){ state.profile = EXAMPLE.profile; state.roles = EXAMPLE.roles; state.companies = EXAMPLE.companies; }
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ---------- helpers ---------- */
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  if(attrs) for(const k in attrs){
+    const v = attrs[k];
+    if(v == null || v === false) continue;
+    if(k === "class") el.className = v;
+    else if(k === "style") el.style.cssText = v;
+    else if(k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for(const kid of kids.flat()){
+    if(kid == null || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const $ = id => document.getElementById(id);
+const enc = encodeURIComponent;
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+function years(){
+  const y = state.expOverride != null ? state.expOverride : Number(state.profile && state.profile.years_experience);
+  return isFinite(y) && y >= 0 ? y : 1;
+}
+function band(y){
+  if(y < 1) return {label:"0–1 yrs", li:"1,2"};
+  if(y < 3) return {label:"1–3 yrs", li:"2,3"};
+  if(y < 6) return {label:"3–6 yrs", li:"3,4"};
+  return {label:"6+ yrs", li:"4"};
+}
+function excludes(y){
+  if(y < 4) return ["Senior","Lead","Principal","Staff","Manager","Architect","Head"];
+  if(y < 7) return ["Principal","Staff","Head","Director"];
+  return [];
+}
+function fitClass(f){ return f >= 80 ? "good" : f >= 65 ? "mid" : "low"; }
+function trustBadge(kind){ const t = TRUST[kind]; return t ? h("span",{class:"trust " + t.cls}, t.label) : null; }
+
+/* ---------- render: filters & tabs ---------- */
+function renderFilters(){
+  const lc = $("locchips"); lc.replaceChildren();
+  LOCS.forEach(l=>{
+    const on = state.locs.includes(l.id);
+    lc.append(h("button",{type:"button", class:"chip", "aria-pressed": on ? "true":"false", onclick:()=>{
+      if(on){ if(state.locs.length > 1) state.locs = state.locs.filter(x=>x!==l.id); }
+      else state.locs = state.locs.concat(l.id);
+      save(); renderAll();
+    }}, l.label));
+  });
+  const pc = $("postchips"); pc.replaceChildren();
+  POSTED.forEach(p=>{
+    pc.append(h("button",{type:"button", class:"chip", "aria-pressed": state.posted===p.id ? "true":"false", onclick:()=>{ state.posted = p.id; save(); renderAll(); }}, p.label));
+  });
+  const tb = $("tabs"); tb.replaceChildren();
+  TABS.forEach(t=>{
+    tb.append(h("button",{type:"button", class:"tab", role:"tab", "aria-selected": state.tab===t.id ? "true":"false", onclick:()=>{ state.tab = t.id; save(); renderAll(); }}, t.label));
+  });
+}
+
+/* ---------- URL builders (LinkedIn / Naukri searches) ---------- */
+function urlFor(pid, title, loc, posted){
+  const y = years(), b = band(y), ex = excludes(y);
+  if(pid === "linkedin"){
+    const kw = title + (ex.length ? " " + ex.map(w=>"NOT "+w).join(" ") : "");
+    let u = "https://www.linkedin.com/jobs/search/?keywords=" + enc(kw) + "&location=" + enc(loc.li) + (posted.li ? "&f_TPR=" + posted.li : "") + "&f_E=" + enc(b.li) + "&sortBy=DD";
+    if(loc.remote) u += "&f_WT=2";
+    return u;
+  }
+  if(pid === "naukri"){
+    const exp = Math.max(0, Math.round(y));
+    const path = loc.nk ? slug(title) + "-jobs-in-" + loc.nk : slug(title) + "-jobs";
+    let u = "https://www.naukri.com/" + path + "?k=" + enc(title) + (loc.nk ? "&l=" + enc(loc.label) : "") + "&experience=" + exp + (posted.nk ? "&jobAge=" + posted.nk : "");
+    if(loc.remote) u += "&wfhType=2";
+    return u;
+  }
+  return "#";
+}
+
+/* ---------- Live jobs: fetched straight from company hiring systems ---------- */
+const INDIA_RE = /india|bangalore|bengaluru|hyderabad|chennai|pune|mumbai|gurgaon|gurugram|noida|delhi|kochi|cochin|kerala|trivandrum|thiruvananthapuram|ahmedabad|kolkata|jaipur|coimbatore|mysore|mysuru/i;
+const CITY_RE = {
+  bangalore:/bangalore|bengaluru/i, hyderabad:/hyderabad/i, kochi:/kochi|cochin|kerala|trivandrum|thiruvananthapuram|thrissur/i,
+  chennai:/chennai/i, pune:/pune/i, mumbai:/mumbai|thane/i, ncr:/delhi|gurgaon|gurugram|noida/i
+};
+const ANY_CITY = new RegExp(Object.values(CITY_RE).map(r=>r.source).join("|") + "|ahmedabad|kolkata|jaipur|coimbatore|mysore|mysuru", "i");
+const LIVE_KEY = "cvjobs.live.v1";
+let live = {status:"idle", jobs:[], checked:0, total:SOURCES.length, failed:0, at:null};
+
+function srTerms(){
+  const set = new Set();
+  (state.roles||[]).slice(0,6).forEach(r=>set.add(r.title));
+  if(!set.size) set.add("Engineer");
+  return Array.from(set);
+}
+function okUrl(u){ return typeof u === "string" && /^https:\/\//.test(u); }
+function mk(company, sys, board, t, u, d, l, india, remote){
+  return {c:company, s:sys, b:board, t:String(t||"").trim(), u, d:d||0, l:String(l||"").trim(), i:!!india, r:!!remote};
+}
+async function fetchJSON(u){
+  const ctl = new AbortController(); const tm = setTimeout(()=>ctl.abort(), 20000);
+  try{ const r = await fetch(u, {signal:ctl.signal}); if(!r.ok) throw new Error("HTTP " + r.status); return await r.json(); }
+  finally{ clearTimeout(tm); }
+}
+async function fetchSource([sys, id, name]){
+  const out = [];
+  if(sys === "gh"){
+    const j = await fetchJSON("https://boards-api.greenhouse.io/v1/boards/" + id + "/jobs");
+    (j.jobs||[]).forEach(x=>{ const l = (x.location && x.location.name) || ""; out.push(mk(name, sys, id, x.title, x.absolute_url, Date.parse(x.first_published || x.updated_at), l, INDIA_RE.test(l), /remote/i.test(l))); });
+  } else if(sys === "lever"){
+    const j = await fetchJSON("https://api.lever.co/v0/postings/" + id + "?mode=json");
+    (Array.isArray(j) ? j : []).forEach(x=>{ const c = x.categories || {}; const l = [c.location].concat(c.allLocations||[]).filter((v,i,a)=>v && a.indexOf(v)===i).join(" / ");
+      out.push(mk(name, sys, id, x.text, x.hostedUrl, x.createdAt, l, x.country === "IN" || INDIA_RE.test(l), x.workplaceType === "remote" || /remote/i.test(l))); });
+  } else if(sys === "ashby"){
+    const j = await fetchJSON("https://api.ashbyhq.com/posting-api/job-board/" + id);
+    (j.jobs||[]).forEach(x=>{ if(x.isListed === false) return; const l = [x.location].concat((x.secondaryLocations||[]).map(s=>s.location)).filter(Boolean).join(" / ");
+      const ctry = (x.address && x.address.postalAddress && x.address.postalAddress.addressCountry) || "";
+      out.push(mk(name, sys, id, x.title, x.jobUrl, Date.parse(x.publishedAt), l, /india/i.test(ctry) || INDIA_RE.test(l), x.isRemote || /remote/i.test(l))); });
+  } else if(sys === "sr"){
+    const seen = new Set();
+    for(const q of srTerms()){
+      const j = await fetchJSON("https://api.smartrecruiters.com/v1/companies/" + id + "/postings?country=in&limit=100&q=" + enc(q));
+      (j.content||[]).forEach(x=>{ if(seen.has(x.id)) return; seen.add(x.id); const L = x.location || {};
+        out.push(mk(name, sys, id, x.name, "https://jobs.smartrecruiters.com/" + id + "/" + x.id, Date.parse(x.releasedDate), L.fullLocation || L.city || "India", true, !!L.remote)); });
+    }
+  }
+  // Keep Indian and remote-friendly postings only.
+  return out.filter(j=>okUrl(j.u) && j.t && (j.i || (j.r && /apac|asia|anywhere|worldwide|global/i.test(j.l))));
+}
+function loadCache(){
+  try{ const c = JSON.parse(localStorage.getItem(LIVE_KEY) || "null"); if(c && Array.isArray(c.jobs)) return c; }catch(e){}
+  return null;
+}
+async function loadLive(force){
+  const key = srTerms().join("|");
+  const c = loadCache();
+  if(!force && c && c.key === key && Date.now() - c.at < 2*3600*1000){
+    live = {status:"done", jobs:c.jobs, checked:SOURCES.length, total:SOURCES.length, failed:c.failed||0, at:c.at};
+    renderResults(); return;
+  }
+  live = {status:"loading", jobs:[], checked:0, total:SOURCES.length, failed:0, at:null};
+  renderResults();
+  let i = 0, lastPaint = 0;
+  async function worker(){
+    while(i < SOURCES.length){
+      const src = SOURCES[i++];
+      try{ const got = await fetchSource(src); live.jobs = live.jobs.concat(got); }
+      catch(e){ live.failed++; }
+      live.checked++;
+      if(Date.now() - lastPaint > 700){ lastPaint = Date.now(); if(state.tab === "live" || state.tab === "companies") renderResults(); }
+    }
+  }
+  await Promise.all(Array.from({length:8}, worker));
+  live.at = Date.now();
+  live.status = live.failed === SOURCES.length ? "blocked" : "done";
+  if(live.status === "done"){
+    try{ localStorage.setItem(LIVE_KEY, JSON.stringify({key, at:live.at, failed:live.failed, jobs:live.jobs})); }catch(e){}
+  }
+  renderResults();
+}
+
+/* Title matching against the job titles you're targeting */
+const STOP = new Set(["engineer","engineers","developer","developers","specialist","associate","junior","jr","i","ii","the","and","of","for","in","a","an","with","software"]);
+function normTitle(s){
+  return " " + String(s).toLowerCase()
+    .replace(/artificial intelligence/g," ai ").replace(/machine learning/g," ml ").replace(/deep learning/g," ml dl ").replace(/\bmle\b/g," ml engineer ")
+    .replace(/generative ai|gen ai|genai/g," genai ").replace(/large language models?|\bllms?\b/g," llm ")
+    .replace(/natural language processing/g," nlp ").replace(/computer vision/g," cv ").replace(/data scien(ce|tist)s?/g," datascience ")
+    .replace(/back[- ]?end/g," backend ").replace(/full[- ]?stack/g," fullstack ").replace(/front[- ]?end/g," frontend ")
+    .replace(/[^a-z0-9+#]+/g," ") + " ";
+}
+function tokens(s){ return normTitle(s).trim().split(/\s+/).filter(Boolean); }
+const TYPE_RE = /\b(engineer|engineering|developer|scientist|researcher|research|sde|swe|programmer|analyst|specialist|architect|mlops)s?\b/i;
+function seniorityOk(title, y){
+  const t = title.toLowerCase();
+  if(y < 4 && /\b(senior|sr|lead|principal|staff|manager|director|head|architect|vp|vice president|chief|distinguished|expert|iii|iv)\b/.test(t)) return false;
+  if(y >= 4 && /\b(principal|staff|director|head|vp|vice president|chief|distinguished)\b/.test(t)) return false;
+  if(y >= 1 && /\b(intern|internship|trainee|apprentice)\b/.test(t)) return false;
+  if(/\b(sales|account executive|recruiter|marketing|legal|counsel|finance|accountant|payable|hr|people partner)\b/.test(t)) return false;
+  return true;
+}
+function matchJob(job, roles, y){
+  if(!seniorityOk(job.t, y) || !TYPE_RE.test(normTitle(job.t))) return null;
+  const jt = new Set(tokens(job.t));
+  if(jt.has("genai") || jt.has("llm") || jt.has("agent") || jt.has("agents") || jt.has("agentic")){ jt.add("ai"); jt.add("genai"); jt.add("llm"); }
+  if(jt.has("ml")) jt.add("ai");
+  if(jt.has("vision")) jt.add("cv");
+  let best = null;
+  roles.forEach(r=>{
+    const sig = tokens(r.title).filter(w=>!STOP.has(w));
+    if(!sig.length) return;
+    const hit = sig.filter(w=>jt.has(w)).length;
+    if(hit < sig.length) return; // every key word of the title must be there
+    const base = isFinite(Number(r.fit)) && Number(r.fit) > 0 ? Number(r.fit) : 75;
+    const exact = normTitle(job.t).includes(normTitle(r.title).trim());
+    const score = Math.round(base * (exact ? 1 : 0.92));
+    if(!best || (exact && !best.exact) || (exact === best.exact && score > best.score)) best = {role:r.title, score, exact};
+  });
+  return best;
+}
+function locOk(job){
+  const sel = state.locs;
+  if(sel.includes("india") && job.i) return true;
+  if(sel.includes("remote") && job.r) return true;
+  const hasCity = ANY_CITY.test(job.l);
+  if(!hasCity && job.i && !job.r) return true; // listed as just "India"
+  return sel.some(id=>CITY_RE[id] && CITY_RE[id].test(job.l));
+}
+function windowDays(){ return ({day:1, "3d":3, week:7, month:30, any:36500})[state.posted] || 30; }
+function ago(d){
+  const days = Math.floor((Date.now() - d) / 86400000);
+  if(days <= 0) return "Posted today";
+  if(days === 1) return "Posted yesterday";
+  if(days < 30) return "Posted " + days + " days ago";
+  return "Posted " + Math.floor(days/30) + " mo ago";
+}
+function niceTitle(t){ return t === t.toLowerCase() ? t.replace(/\b[a-z]/g, m=>m.toUpperCase()).replace(/\b(Ai|Ml|Llm|Nlp|Sde|Qa|Ui|Ux|Api)\b/g, m=>m.toUpperCase()).replace(/\bGenai\b/g,"GenAI") : t; }
+function hue(s){ let x = 0; for(const ch of s) x = (x*31 + ch.charCodeAt(0)) % 360; return x; }
+function matchedJobs(){
+  const y = years(), roles = state.roles || [], cutoff = Date.now() - windowDays()*86400000;
+  const seen = new Set(), out = [];
+  live.jobs.forEach(j=>{
+    if(seen.has(j.u)) return; seen.add(j.u);
+    if(!(j.d >= cutoff) || !locOk(j)) return;
+    const m = matchJob(j, roles, y); if(!m) return;
+    out.push(Object.assign({}, j, {m}));
+  });
+  return out;
+}
+
+function renderLive(box){
+  const y = years(), b = band(y);
+  const applied = state.applied || {};
+  let jobs = matchedJobs();
+  jobs.sort((a,c)=> state.sort === "match" ? (c.m.score - a.m.score) || (c.d - a.d) : (c.d - a.d) || (c.m.score - a.m.score));
+  jobs.sort((a,c)=> (applied[a.u]?1:0) - (applied[c.u]?1:0));
+
+  const stats = $("stats"); stats.replaceChildren();
+  if(live.status === "loading"){
+    stats.append("Checking company hiring systems… " + live.checked + " of " + live.total + " · " + jobs.length + " matching jobs so far");
+  } else if(live.status === "blocked"){
+    stats.textContent = "";
+  } else {
+    const mins = live.at ? Math.max(0, Math.round((Date.now() - live.at)/60000)) : 0;
+    stats.append(jobs.length + " live jobs · direct links · " + (state.sort === "match" ? "best match first" : "newest first") + " · " + b.label + " level · checked " + (mins < 1 ? "just now" : mins + " min ago") + " ",
+      h("button",{type:"button", class:"linkbtn", onclick:()=>loadLive(true)}, "Refresh"));
+  }
+  const sortRow = h("div",{class:"sortrow"}, h("span",{class:"lbl"},"Sort"),
+    h("div",{class:"chips"},
+      h("button",{type:"button", class:"chip", "aria-pressed": state.sort !== "match" ? "true":"false", onclick:()=>{ state.sort = "new"; save(); renderResults(); }}, "Newest first"),
+      h("button",{type:"button", class:"chip", "aria-pressed": state.sort === "match" ? "true":"false", onclick:()=>{ state.sort = "match"; save(); renderResults(); }}, "Best match")));
+  if(live.status !== "blocked") box.append(sortRow);
+
+  if(live.status === "blocked"){
+    box.append(h("div",{class:"empty"},
+      h("p",null, h("b",null,"Live jobs can't load in this copy.")),
+      h("p",null, "claude.ai doesn't let pages contact other websites, so it can't fetch postings from company career pages. Live jobs work in the copy hosted on GitHub Pages. Below are your LinkedIn searches, which do work here.")));
+    renderSearches(box, "linkedin", true);
+    return;
+  }
+  if(live.status === "loading" && !jobs.length){
+    box.append(h("div",{class:"skel"}, h("div",{style:"width:38%"}), h("div",{style:"width:78%;height:20px"}), h("div",{style:"width:60%"})));
+    return;
+  }
+  if(!jobs.length){
+    box.append(h("div",{class:"empty"},
+      h("p",null, "No matching jobs " + (state.posted === "any" ? "open" : "posted in the " + (POSTED.find(p=>p.id===state.posted)||POSTED[3]).text) + " in your chosen locations."),
+      h("p",null, "Try a longer date window (Month or Any time), add a location, or add another job title in the search box.")));
+    return;
+  }
+  const shown = jobs.slice(0, state.showAll ? 400 : 60);
+  shown.forEach(j=>{
+    const host = (()=>{ try{ return new URL(j.u).hostname.replace(/^www\./,""); }catch(e){ return ""; } })();
+    const days = (Date.now() - j.d)/86400000;
+    const isApplied = !!applied[j.u];
+    box.append(h("article",{class:"res job" + (isApplied ? " applied" : "")},
+      h("div",{class:"src"},
+        h("span",{class:"fav", style:"--c:hsl(" + hue(j.c) + " 45% 38%)", "aria-hidden":"true"}, j.c.charAt(0).toUpperCase()),
+        h("div",null, h("div",{class:"site"}, j.c), h("div",{class:"crumb"}, host + " › " + j.b + " › job"))),
+      h("h3",null, h("a",{href:j.u, target:"_blank", rel:"noopener"}, niceTitle(j.t))),
+      h("div",{class:"meta"},
+        h("span",{class:"pill " + (days <= 3 ? "good" : days <= 10 ? "mid" : "low")}, ago(j.d)),
+        h("span",null, j.l || "India"),
+        trustBadge("direct")),
+      h("div",{class:"meta"},
+        h("span",{class:"pill " + fitClass(j.m.score)}, j.m.score + "% match"),
+        h("span",null, "for " + j.m.role),
+        h("button",{type:"button", class:"applybtn", "aria-pressed": isApplied ? "true":"false", onclick:()=>{
+          state.applied = Object.assign({}, state.applied||{}); if(isApplied) delete state.applied[j.u]; else state.applied[j.u] = Date.now(); save(); renderResults();
+        }}, isApplied ? "Applied ✓" : "Mark applied"))
+    ));
+  });
+  if(jobs.length > shown.length) box.append(h("button",{type:"button", class:"btn ghost", onclick:()=>{ state.showAll = true; renderResults(); }}, "Show all " + jobs.length + " jobs"));
+}
+
+function renderCompanies(box){
+  const jobs = matchedJobs();
+  const counts = {};
+  jobs.forEach(j=>{ const k = j.s + ":" + j.b; counts[k] = (counts[k]||0) + 1; });
+  const list = SOURCES.map(s=>({s, n:counts[s[0]+":"+s[1]]||0})).sort((a,b)=>b.n-a.n || a.s[2].localeCompare(b.s[2]));
+  const withJobs = list.filter(x=>x.n);
+  $("stats").textContent = live.status === "done"
+    ? withJobs.length + " of " + SOURCES.length + " companies have matching openings right now · links open their own careers page"
+    : SOURCES.length + " companies checked directly · links open their own careers page";
+  list.forEach(({s, n})=>{
+    const [sys, id, name] = s;
+    const url = SYS[sys].board(id);
+    box.append(h("article",{class:"res"},
+      h("div",{class:"src"}, h("span",{class:"fav", style:"--c:hsl(" + hue(name) + " 45% 38%)", "aria-hidden":"true"}, name.charAt(0).toUpperCase()),
+        h("div",null, h("div",{class:"site"}, name), h("div",{class:"crumb"}, url.replace(/^https:\/\//,"")))),
+      h("h3",null, h("a",{href:url, target:"_blank", rel:"noopener"}, name + " careers")),
+      h("div",{class:"meta"}, trustBadge("direct"),
+        live.status === "done" ? h("span",{class:"pill " + (n ? "good" : "low")}, n ? n + " matching " + (n === 1 ? "job" : "jobs") : "No match right now") : null)
+    ));
+  });
+}
+
+/* ---------- render: results ---------- */
+function renderResults(){
+  const box = $("results"); box.replaceChildren();
+  const posted = POSTED.find(p=>p.id===state.posted) || POSTED[1];
+  const locs = LOCS.filter(l=>state.locs.includes(l.id));
+  const y = years(), b = band(y), ex = excludes(y);
+  const roles = (state.roles || []).slice().sort((a,b)=>(b.fit||0)-(a.fit||0));
+
+  const banner = $("banner"); banner.replaceChildren();
+  if(state.isExample){
+    banner.append(h("div",{class:"banner"},
+      h("span",null, h("b",null,"Example profile. "), "Add your CV and press Find matching jobs to match jobs to you."),
+      h("label",{class:"btn ghost", for:"cvfile", style:"cursor:pointer"}, "Upload CV")));
+  }
+
+  if(state.tab === "live"){ renderLive(box); return; }
+  if(state.tab === "companies"){ renderCompanies(box); return; }
+
+  renderSearches(box, state.tab);
+}
+
+function renderSearches(box, pid, keepStats){
+  const posted = POSTED.find(p=>p.id===state.posted) || POSTED[1];
+  const locs = LOCS.filter(l=>state.locs.includes(l.id));
+  const y = years(), b = band(y), ex = excludes(y);
+  const roles = (state.roles || []).slice().sort((a,b)=>(b.fit||0)-(a.fit||0));
+  const main = PLATFORMS.find(p=>p.id===pid) || PLATFORMS[0];
+  if(!keepStats) $("stats").textContent = (roles.length * locs.length) + " searches on " + main.name + " · " + (posted.id === "any" ? "any date" : posted.text) + " · newest first · " + b.label + " level" + (ex.length && main.id === "linkedin" ? " · senior/lead roles filtered out" : "");
+  if(!roles.length){ box.append(h("p",{class:"empty"},"No job titles yet. Add one in the search box above, or run Find matching jobs with your CV.")); return; }
+  roles.forEach(r=>{
+    locs.forEach(loc=>{
+      const url = urlFor(main.id, r.title, loc, posted);
+      const fit = Number(r.fit);
+      box.append(h("article",{class:"res"},
+        h("div",{class:"src"},
+          h("span",{class:"fav", style:"--c:" + main.color, "aria-hidden":"true"}, main.short),
+          h("div",null, h("div",{class:"site"}, main.name), h("div",{class:"crumb"}, main.crumb + " › " + slug(r.title)))),
+        h("h3",null, h("a",{href:url, target:"_blank", rel:"noopener"}, r.title + (loc.remote ? " remote jobs" : loc.id === "india" ? " jobs across India" : " jobs in " + loc.label) + ", " + b.label + " experience")),
+        h("div",{class:"meta"},
+          isFinite(fit) && fit > 0 ? h("span",{class:"pill " + fitClass(fit)}, fit + "% fit") : h("span",{class:"pill low"},"Added by you"),
+          trustBadge(main.trust),
+          h("span",null, posted.id === "any" ? "Any posting date" : "Posted in the " + posted.text)),
+        r.why ? h("p",{class:"snip"}, r.why) : null,
+        posted.id !== "day" ? h("div",{class:"sitelinks"}, h("a",{class:"fresh", href:urlFor(main.id, r.title, loc, POSTED[0]), target:"_blank", rel:"noopener"}, "Newest: last 24 hours")) : null
+      ));
+    });
+  });
+}
+
+/* ---------- render: profile panel ---------- */
+function renderProfile(){
+  const card = $("profile"); card.replaceChildren();
+  const p = state.profile || {};
+  const y = years(), b = band(y);
+  card.append(h("h2",null, state.isExample ? "Profile (example)" : (state.analyzer === "device" ? "What we read from your CV" : "What Claude read from your CV")));
+  if(p.name) card.append(h("div",{class:"pname"}, p.name));
+  if(p.headline) card.append(h("p",{class:"headline"}, p.headline));
+
+  const cvY = Number(p.years_experience);
+  const sel = h("select",{id:"expsel", "aria-label":"Experience used for searches", onchange:e=>{
+    const v = e.target.value; state.expOverride = v === "cv" ? null : Number(v); save(); renderAll();
+  }});
+  sel.append(h("option",{value:"cv"}, "From CV" + (isFinite(cvY) ? " (" + cvY + " yrs)" : "")));
+  [0,1,2,3,4,5,6,8,10].forEach(n=>sel.append(h("option",{value:String(n)}, n + " yrs")));
+  sel.value = state.expOverride == null ? "cv" : String(state.expOverride);
+
+  card.append(h("div",{class:"sec"},
+    h("div",{class:"exp"}, h("span",{class:"big"}, String(Math.round(y*10)/10)), h("span",{class:"unit"},"years of experience"), h("span",{class:"pill " + (y<3?"good":"mid")}, b.label)),
+    h("dl",{class:"kv"},
+      p.seniority ? [h("dt",null,"Level"), h("dd",null,p.seniority)] : null,
+      h("dt",null, h("label",{for:"expsel"},"Search as")), h("dd",null, sel)),
+    p.experience_note && !state.isExample ? h("p",{class:"note"}, p.experience_note) : null
+  ));
+
+  if(p.core_skills && p.core_skills.length){
+    card.append(h("div",{class:"sec"}, h("h3",null,"Skills it matched on"), h("div",{class:"sk"}, p.core_skills.slice(0,14).map(s=>h("span",null,s)))));
+  }
+
+  const ul = h("ul",{class:"roles"});
+  (state.roles||[]).slice().sort((a,b)=>(b.fit||0)-(a.fit||0)).forEach(r=>{
+    const fit = Number(r.fit);
+    ul.append(h("li",null,
+      isFinite(fit) && fit>0 ? h("span",{class:"pill " + fitClass(fit)}, fit + "%") : h("span",{class:"pill low"},"you"),
+      h("span",{class:"t"}, r.title),
+      h("button",{type:"button", class:"x", "aria-label":"Remove " + r.title, title:"Remove this title", onclick:()=>{
+        state.roles = state.roles.filter(x=>x!==r); save(); renderAll();
+      }}, "×")));
+  });
+  card.append(h("div",{class:"sec"}, h("h3",null,"Job titles being searched"), ul,
+    h("p",{class:"note"},"Remove titles you don't want. Add more with the search box at the top.")));
+
+  if(p.cv_tips && p.cv_tips.length){
+    card.append(h("div",{class:"sec"}, h("h3",null,"Fix these to get shortlisted more"), h("ul",{class:"tips"}, p.cv_tips.slice(0,3).map(t=>h("li",null,t)))));
+  }
+}
+
+function renderFile(){
+  const fi = $("fileinfo"); fi.replaceChildren();
+  if(state.cvText){
+    const words = state.cvText.trim().split(/\s+/).length;
+    fi.append(h("b",null, state.fileName || "Pasted text"), " · " + words + " words read");
+  } else fi.textContent = "No CV loaded yet.";
+}
+
+function renderAll(){ renderFilters(); renderResults(); renderProfile(); renderFile(); }
+
+/* ---------- CV reading ---------- */
+async function readFile(file){
+  const name = file.name.toLowerCase();
+  if(name.endsWith(".pdf") || file.type === "application/pdf"){
+    if(!window.pdfjsLib) throw new Error("The PDF reader didn't load. Paste your CV text instead.");
+    if(!window.pdfjsWorker) pdfjsLib.GlobalWorkerOptions.workerSrc = "lib/pdf.worker.min.js";
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    let out = [];
+    for(let i=1;i<=pdf.numPages;i++){
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      let line = "", lastY = null;
+      tc.items.forEach(it=>{
+        const yy = it.transform ? it.transform[5] : null;
+        if(lastY !== null && yy !== null && Math.abs(yy-lastY) > 2){ out.push(line); line = ""; }
+        line += it.str + (it.hasEOL ? "\n" : " ");
+        lastY = yy;
+      });
+      out.push(line);
+    }
+    return out.join("\n");
+  }
+  if(name.endsWith(".docx")){
+    if(!window.mammoth) throw new Error("The Word reader didn't load. Paste your CV text instead.");
+    const buf = await file.arrayBuffer();
+    const res = await mammoth.extractRawText({arrayBuffer:buf});
+    return res.value;
+  }
+  if(name.endsWith(".doc")) throw new Error("Old .doc files can't be read here. Save it as .docx or PDF, or paste the text.");
+  return await file.text();
+}
+
+async function takeFile(file){
+  showErr("");
+  $("fileinfo").textContent = "Reading " + file.name + "…";
+  try{
+    const text = (await readFile(file)).replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+    if(text.length < 200) throw new Error("Only " + text.length + " characters came out of that file. If it's a scanned PDF, paste the text instead.");
+    state.cvText = text; state.fileName = file.name;
+    $("cvtext").value = text;
+    save(); renderFile();
+  }catch(e){
+    renderFile();
+    showErr(e.message || "Couldn't read that file.");
+  }
+}
+
+$("cvfile").addEventListener("change", e=>{ const f = e.target.files && e.target.files[0]; if(f) takeFile(f); e.target.value = ""; });
+const drop = $("drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e=>{ const f = e.dataTransfer.files && e.dataTransfer.files[0]; if(f) takeFile(f); });
+$("cvtext").addEventListener("input", e=>{
+  state.cvText = e.target.value; state.fileName = state.fileName && e.target.value ? state.fileName : (e.target.value ? "Pasted text" : null);
+  save(); renderFile();
+});
+if(state.cvText) $("cvtext").value = state.cvText;
+
+function showErr(msg){ const el = $("err"); el.textContent = msg; el.hidden = !msg; }
+
+/* ---------- top search: add a title ---------- */
+$("qform").addEventListener("submit", e=>{
+  e.preventDefault();
+  const v = $("qinput").value.trim();
+  if(!v) return;
+  if(!(state.roles||[]).some(r=>r.title.toLowerCase()===v.toLowerCase())){
+    state.roles = [{title:v, fit:null, why:"", keywords:[]}].concat(state.roles||[]);
+  }
+  if(state.tab === "companies") state.tab = "live";
+  $("qinput").value = "";
+  save(); renderAll();
+});
+
+/* ---------- On-device CV analysis (used when Claude isn't available, e.g. the no-sign-in version) ---------- */
+const SKILLS = [
+  ["Python",/\bpython\b/i],["SQL",/\bsql\b/i],["Java",/\bjava\b(?!script)/i],["C++",/c\+\+/i],["JavaScript",/\bjavascript\b/i],["TypeScript",/\btypescript\b/i],
+  ["LLMs",/\bllms?\b|large language models?/i],["Generative AI",/\bgen ?ai\b|generative ai/i],["RAG",/\brag\b|retrieval[- ]augmented/i],
+  ["LangChain",/\blangchain\b/i],["LlamaIndex",/\bllama ?index\b/i],["LangGraph",/\blanggraph\b/i],["OpenAI API",/\bopenai\b|\bgpt-?[345]/i],
+  ["Prompt engineering",/prompt engineering|\bprompting\b/i],["Vector databases",/vector (db|database|store)|\bfaiss\b|\bpinecone\b|\bchroma(db)?\b|\bqdrant\b|\bweaviate\b|\bmilvus\b|pgvector/i],
+  ["Fine-tuning",/fine[- ]?tun/i],["LoRA / PEFT",/\blora\b|\bqlora\b|\bpeft\b/i],["Hugging Face",/hugging ?face/i],["Transformers",/\btransformers?\b/i],
+  ["AI agents",/\bagents?\b|agentic/i],["vLLM / Ollama",/\bvllm\b|\bollama\b|llama\.cpp/i],["LLM evaluation",/\bevals?\b|evaluation harness|ragas/i],
+  ["PyTorch",/\bpytorch\b|\btorch\b/i],["TensorFlow",/\btensorflow\b|\bkeras\b/i],["scikit-learn",/scikit[- ]?learn|\bsklearn\b/i],["XGBoost",/\bxgboost\b|\blightgbm\b|\bcatboost\b/i],
+  ["Machine learning",/machine learning|\bml\b/i],["Deep learning",/deep learning|neural network/i],["NLP",/\bnlp\b|natural language processing/i],
+  ["BERT",/\bbert\b|roberta/i],["spaCy / NLTK",/\bspacy\b|\bnltk\b/i],["Computer vision",/computer vision|\bopencv\b|image processing/i],
+  ["YOLO / detection",/\byolo|object detection|segmentation/i],["CNNs",/\bcnns?\b|convolutional/i],["OCR",/\bocr\b|tesseract/i],
+  ["Speech / ASR",/\basr\b|speech[- ]to[- ]text|whisper/i],["Time series",/time[- ]series|forecasting/i],["Statistics",/statistic|hypothesis test|a\/b test/i],
+  ["Pandas / NumPy",/\bpandas\b|\bnumpy\b/i],["Feature engineering",/feature engineering/i],
+  ["FastAPI",/\bfastapi\b/i],["Flask",/\bflask\b/i],["Django",/\bdjango\b/i],["REST APIs",/\brest(ful)?\b.{0,4}api|\bapis?\b/i],["Node.js",/\bnode\.?js\b|\bexpress(\.js)?\b/i],["React",/\breact(\.js)?\b/i],
+  ["PostgreSQL",/postgres/i],["MySQL",/\bmysql\b/i],["MongoDB",/\bmongo(db)?\b/i],["Redis",/\bredis\b/i],
+  ["Docker",/\bdocker\b/i],["Kubernetes",/\bkubernetes\b|\bk8s\b/i],["CI/CD",/ci\/cd|github actions|jenkins|gitlab ci/i],["MLflow",/\bmlflow\b/i],["MLOps",/\bmlops\b/i],
+  ["AWS",/\baws\b|amazon web services|sagemaker|\bec2\b|\bs3\b|lambda/i],["Azure",/\bazure\b/i],["GCP",/\bgcp\b|google cloud|vertex ai|bigquery/i],["Linux",/\blinux\b/i],["Git",/\bgit\b|github/i],
+  ["Spark",/\bspark\b|pyspark|databricks/i],["Airflow",/\bairflow\b/i],["Kafka",/\bkafka\b/i],["ETL",/\betl\b|\belt\b|data pipeline/i],["dbt / Snowflake",/\bdbt\b|snowflake/i],
+  ["Power BI",/power ?bi/i],["Tableau",/\btableau\b/i],["Excel",/\bexcel\b/i]
+];
+const ROLE_CATALOG = [
+  {title:"Generative AI Engineer", fam:"ai", w:{"Generative AI":3,"LLMs":3,"RAG":3,"LangChain":2,"Vector databases":2,"Prompt engineering":2,"OpenAI API":2,"Python":2,"Hugging Face":1,"FastAPI":1,"AI agents":1}},
+  {title:"AI Engineer", fam:"ai", w:{"Python":2,"LLMs":2,"Machine learning":2,"Deep learning":1,"FastAPI":2,"Docker":1,"REST APIs":1,"RAG":1,"PyTorch":1,"AWS":1}},
+  {title:"LLM Engineer", fam:"ai", w:{"LLMs":3,"Fine-tuning":3,"LoRA / PEFT":2,"Transformers":2,"Hugging Face":2,"vLLM / Ollama":2,"RAG":2,"LLM evaluation":2,"PyTorch":1,"Python":1}},
+  {title:"Applied AI Engineer", fam:"ai", w:{"Python":2,"LLMs":2,"Machine learning":2,"RAG":1,"FastAPI":1,"AI agents":2,"LLM evaluation":1,"Docker":1}},
+  {title:"Machine Learning Engineer", fam:"ml", w:{"Machine learning":3,"PyTorch":2,"TensorFlow":2,"scikit-learn":2,"Python":2,"Docker":1,"MLOps":2,"MLflow":1,"Feature engineering":1,"AWS":1}},
+  {title:"MLOps Engineer", fam:"ml", w:{"MLOps":3,"Docker":3,"Kubernetes":3,"MLflow":2,"CI/CD":2,"AWS":2,"Airflow":1,"Linux":1,"Python":1}},
+  {title:"NLP Engineer", fam:"ai", w:{"NLP":3,"Transformers":2,"BERT":2,"spaCy / NLTK":2,"Hugging Face":2,"PyTorch":1,"Python":1,"LLMs":1}},
+  {title:"Computer Vision Engineer", fam:"cv", w:{"Computer vision":3,"YOLO / detection":3,"CNNs":2,"PyTorch":2,"OCR":1,"Deep learning":1,"Python":1,"TensorFlow":1}},
+  {title:"Data Scientist", fam:"ml", w:{"Machine learning":3,"Statistics":3,"Python":2,"Pandas / NumPy":2,"scikit-learn":2,"SQL":2,"XGBoost":1,"Feature engineering":1,"Time series":1}},
+  {title:"Data Engineer", fam:"data", w:{"SQL":3,"Spark":3,"ETL":3,"Airflow":2,"Kafka":2,"Python":2,"dbt / Snowflake":2,"AWS":1,"GCP":1}},
+  {title:"Data Analyst", fam:"data", w:{"SQL":3,"Excel":2,"Power BI":3,"Tableau":3,"Python":1,"Statistics":2,"Pandas / NumPy":1}},
+  {title:"Python Backend Developer", fam:"web", w:{"Python":3,"FastAPI":2,"Django":2,"Flask":2,"PostgreSQL":2,"REST APIs":2,"Docker":1,"Redis":1,"MySQL":1}},
+  {title:"Full Stack Developer", fam:"web", w:{"React":3,"Node.js":3,"JavaScript":2,"TypeScript":2,"MongoDB":1,"PostgreSQL":1,"REST APIs":1}}
+];
+const COMPANY_POOL = {
+  ai:[["Fractal Analytics","fractal.ai","Applied AI consultancy with steady junior GenAI hiring."],["Sarvam AI","sarvam.ai","Indian foundation-model startup in Bangalore."],["Kore.ai","kore.ai","Conversational AI platform hiring LLM engineers."],["Yellow.ai","yellow.ai","GenAI customer-service platform, Bangalore."],["Observe.AI","observe.ai","Speech and LLM analytics product team."],["Uniphore","uniphore.com","Conversational AI product company."],["Gnani.ai","gnani.ai","Voice AI startup building Indic models."],["Quantiphi","quantiphi.com","AI services firm hiring across GenAI and ML."]],
+  ml:[["Tiger Analytics","tigeranalytics.com","Hires 1–3 yr ML engineers for client delivery."],["Fractal Analytics","fractal.ai","Large applied AI and data science firm."],["Tredence","tredence.com","Data science and ML engineering services."],["LatentView Analytics","latentview.com","Analytics and ML consulting."],["Sigmoid","sigmoid.com","Data and ML engineering, Bangalore hub."],["Mu Sigma","mu-sigma.com","Large decision-science employer in Bangalore."],["Quantiphi","quantiphi.com","AI services with MLOps practice."]],
+  cv:[["Netradyne","netradyne.com","Computer vision for fleet safety, Bangalore."],["Mad Street Den","madstreetden.com","Vision AI for retail, Chennai."],["Tata Elxsi","tataelxsi.com","Embedded and vision engineering."],["Quantiphi","quantiphi.com","AI services including vision projects."]],
+  data:[["Sigmoid","sigmoid.com","Data engineering firm with steady hiring."],["Tredence","tredence.com","Data engineering and analytics services."],["LatentView Analytics","latentview.com","Analytics consulting, Chennai and Bangalore."],["Tiger Analytics","tigeranalytics.com","Data and analytics delivery teams."],["Mu Sigma","mu-sigma.com","Decision-science employer."]],
+  web:[["Zoho","zoho.com","Product company hiring engineers in Chennai."],["Freshworks","freshworks.com","SaaS product company, Chennai and Bangalore."],["Razorpay","razorpay.com","Fintech product company, Bangalore."],["Postman","postman.com","API platform company, Bangalore."]]
+};
+const MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,sept:9,oct:10,nov:11,dec:12};
+function localAnalyze(cv){
+  const now = new Date(), nowY = now.getFullYear(), nowM = now.getMonth()+1;
+  const lines = cv.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  // Experience section
+  const expHead = /^(work\s+|professional\s+|relevant\s+)?(experience|employment|work history|career history|internships?)\b/i;
+  const stopHead = /^(education|academic|projects?|personal projects|technical skills|skills|certifications?|publications?|achievements|awards|languages|interests|hobbies|summary|profile|objective|declaration|personal details|research)\b/i;
+  let inExp = false, expLines = [];
+  lines.forEach(l=>{
+    if(l.length < 45 && expHead.test(l)){ inExp = true; return; }
+    if(l.length < 45 && stopHead.test(l)){ inExp = false; return; }
+    if(inExp) expLines.push(l);
+  });
+  if(!expLines.length) expLines = lines.filter(l=>!/b\.?\s?tech|bachelor|master|university|college|school|cgpa|\bgpa\b|degree|class x/i.test(l));
+  const D = "(?<![\\d\\w])(?:(jan|feb|mar|apr|may|jun|jul|aug|sept|sep|oct|nov|dec)[a-z]*\\.?,?\\s*'?(\\d{4}|\\d{2})(?!\\d)|(\\d{1,2})[\\/.\\-](\\d{4})(?!\\d)|((?:19|20)\\d{2})(?!\\d))";
+  const RANGE = new RegExp(D + "\\s*(?:-|–|—|to|till|until)\\s*(?:" + D.replace(/\(\?:/,"(?:") + "|(present|current|now|ongoing|today|date))", "ig");
+  const toYM = (mon, y2, mnum, ynum, yonly, isEnd) => {
+    if(mon){ let y = Number(y2); if(y < 100) y += 2000; return [y, MONTHS[mon.toLowerCase().slice(0,4)] || MONTHS[mon.toLowerCase().slice(0,3)]]; }
+    if(mnum) return [Number(ynum), Number(mnum)];
+    if(yonly) return [Number(yonly), isEnd ? 12 : 1];
+    return null;
+  };
+  const months = new Map();
+  expLines.forEach((l,i)=>{
+    RANGE.lastIndex = 0; let m;
+    while((m = RANGE.exec(l))){
+      const s = toYM(m[1],m[2],m[3],m[4],m[5],false);
+      let e = m[11] ? [nowY, nowM] : toYM(m[6],m[7],m[8],m[9],m[10],true);
+      if(!s || !e) continue;
+      if(e[0] > nowY || (e[0] === nowY && e[1] > nowM)) e = [nowY, nowM];
+      const si = s[0]*12 + s[1], ei = e[0]*12 + e[1];
+      if(s[0] < 1990 || ei < si || ei - si > 480) continue;
+      const ctx = (lines[lines.indexOf(l)-1] || "") + " " + l;
+      const wgt = /intern|trainee|apprentice/i.test(ctx) ? 0.5 : 1;
+      for(let k=si;k<=ei;k++) months.set(k, Math.max(months.get(k)||0, wgt));
+    }
+  });
+  let yrs = 0; months.forEach(v=>{ yrs += v; }); yrs = yrs/12;
+  const counted = months.size;
+  if(!counted){
+    const st = cv.match(/(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s+(?:of\s+)?(?:professional\s+|industry\s+|work\s+|hands-on\s+)?experience/i);
+    if(st) yrs = Number(st[1]);
+  }
+  yrs = Math.round(yrs*10)/10;
+  // Skills
+  const found = SKILLS.filter(([,re])=>re.test(cv)).map(([l])=>l);
+  const has = new Set(found);
+  // Roles
+  const roles = ROLE_CATALOG.map(r=>{
+    const entries = Object.entries(r.w);
+    const total = entries.reduce((a,[,w])=>a+w,0);
+    const hit = entries.filter(([k])=>has.has(k));
+    const got = hit.reduce((a,[,w])=>a+w,0);
+    const miss = entries.filter(([k])=>!has.has(k) && !/^(Generative AI|Machine learning|Deep learning|Python)$/.test(k)).sort((a,b)=>b[1]-a[1]);
+    const score = got / Math.min(total, 14);
+    return {r, hit:hit.sort((a,b)=>b[1]-a[1]).map(([k])=>k), miss:miss.map(([k])=>k), score};
+  }).filter(x=>x.hit.length >= 2).sort((a,b)=>b.score-a.score).slice(0,7).map(x=>({
+    title:x.r.title, fam:x.r.fam,
+    fit: Math.max(40, Math.min(96, Math.round(38 + 60*Math.min(1, x.score)))),
+    why: "Your CV shows " + x.hit.slice(0,3).join(", ") + (x.miss.length ? ". Postings often also ask for " + x.miss[0] + "." : "."),
+    keywords: x.hit.slice(0,3), miss:x.miss
+  }));
+  // Companies from the top roles' families
+  const fams = []; roles.forEach(r=>{ if(!fams.includes(r.fam)) fams.push(r.fam); });
+  const seen = new Set(), companies = [];
+  for(let round=0; round<8 && companies.length<8; round++){
+    fams.slice(0,3).forEach(f=>{ const c = (COMPANY_POOL[f]||[])[round]; if(c && !seen.has(c[0]) && companies.length<8){ seen.add(c[0]); companies.push({name:c[0], domain:c[1], why:c[2]}); } });
+  }
+  // Name
+  const nm = lines.slice(0,4).find(l=>/^[A-Za-z][A-Za-z.' ]{2,38}$/.test(l) && l.split(/\s+/).length <= 4 && !expHead.test(l) && !/curriculum|resume|vitae/i.test(l));
+  const seniority = yrs < 1 ? "Fresher" : yrs < 3 ? "Junior" : yrs < 6 ? "Mid-level" : "Senior";
+  // Tips
+  const tips = [];
+  if(!/github\.com/i.test(cv)) tips.push("Add your GitHub link to the header. Recruiters for these roles check it.");
+  if(!/linkedin\.com\/in/i.test(cv)) tips.push("Add your LinkedIn profile URL to the header.");
+  const quantified = lines.filter(l=>/\d+(\.\d+)?\s?(%|x\b|ms\b|users|hours|crore|lakh|k\b)/i.test(l)).length;
+  if(quantified < 3) tips.push("Put numbers in your project bullets: accuracy, latency, users, hours or cost saved.");
+  if(roles[0] && roles[0].miss[0]) tips.push("If you've used " + roles[0].miss[0] + ", name it. Most " + roles[0].title + " postings ask for it.");
+  return {
+    profile:{
+      name: nm || null,
+      headline: roles[0] ? seniority + " profile · strongest match: " + roles[0].title : seniority + " profile",
+      years_experience: yrs,
+      experience_note: counted ? "Counted from the dates in your Experience section; internships at half weight. Change it with Search as if it's off." : "No dated roles found, so this is a guess. Set it with Search as.",
+      seniority,
+      core_skills: found.slice(0,14),
+      cv_tips: tips.slice(0,3)
+    },
+    roles: roles.map(({title,fit,why,keywords})=>({title,fit,why,keywords})),
+    companies
+  };
+}
+
+/* ---------- Claude analysis ---------- */
+let samplePromise = null;
+function getSample(){
+  if(!samplePromise){
+    samplePromise = (window.claude && typeof window.claude.use === "function") ? window.claude.use("sample").catch(()=>null) : Promise.resolve(null);
+  }
+  return samplePromise;
+}
+getSample().then(s=>{
+  if(!s) $("aiNote").textContent = "Your CV is read on this device and never uploaded. It works out your experience level and the job titles you match.";
+});
+
+function buildPrompt(cv){
+  const today = new Date().toISOString().slice(0,10);
+  return [
+    "You are a senior technical recruiter in India. Read the CV below and decide which jobs this person would realistically be shortlisted for right now.",
+    "Today's date is " + today + ". Treat ongoing roles (Present/Current) as running until today.",
+    "",
+    "Return ONLY a JSON object with exactly these keys:",
+    "{",
+    '  "name": string or null,',
+    '  "headline": string (one line, max 90 chars, what they do professionally),',
+    '  "years_experience": number (one decimal; full-time professional experience; count internships at half weight; exclude education and college projects),',
+    '  "experience_note": string (max 140 chars, how you counted it, e.g. "Full-time since Mar 2026 + 8-month internship at half weight"),',
+    '  "seniority": "Fresher" | "Junior" | "Mid-level" | "Senior",',
+    '  "core_skills": string[] (8-14 skills actually evidenced in the CV, most job-relevant first),',
+    '  "roles": [ { "title": string, "fit": integer 0-100, "why": string, "keywords": string[] } ] (6-8 items, best fit first),',
+    '  "companies": [ { "name": string, "why": string } ] (8 items),',
+    '  "cv_tips": string[] (up to 3)',
+    "}",
+    "",
+    "Rules for roles:",
+    "- Use job titles employers actually post on LinkedIn and Naukri in India, written the way they appear in postings (e.g. \"Generative AI Engineer\", \"Machine Learning Engineer\").",
+    "- Match the person's real level. Under 4 years: no Senior, Lead, Principal, Staff, Manager or Architect titles.",
+    "- Order by how likely a recruiter is to shortlist them. fit reflects skill overlap and level match.",
+    "- why: one sentence, max 170 chars, citing concrete evidence from the CV (a project, tool or result).",
+    "- keywords: 2-3 skills from the CV that matter most for that title.",
+    "Rules for companies: real employers (not staffing agencies, consultancies that place contractors, or job portals) with engineering teams in India that hire people at this level for these titles. why is max 90 chars. Add \"domain\": the bare domain of the company's official website (e.g. \"fractal.ai\"), or null if you are not certain of it.",
+    "Rules for cv_tips: specific, short (max 120 chars each) changes to this CV that would raise shortlisting for the roles above. Skip generic advice.",
+    "",
+    "CV:",
+    "<<<",
+    cv.slice(0, 24000),
+    ">>>"
+  ].join("\n");
+}
+
+function clean(obj){
+  const str = (v,n)=> typeof v === "string" ? v.trim().slice(0,n) : "";
+  const arr = v => Array.isArray(v) ? v : [];
+  const p = {
+    name: str(obj.name,80) || null,
+    headline: str(obj.headline,140),
+    years_experience: Math.max(0, Math.min(40, Number(obj.years_experience) || 0)),
+    experience_note: str(obj.experience_note,200),
+    seniority: str(obj.seniority,30),
+    core_skills: arr(obj.core_skills).map(s=>str(s,40)).filter(Boolean).slice(0,14),
+    cv_tips: arr(obj.cv_tips).map(s=>str(s,200)).filter(Boolean).slice(0,3)
+  };
+  p.years_experience = Math.round(p.years_experience*10)/10;
+  const roles = arr(obj.roles).map(r=>({
+    title: str(r && r.title,80),
+    fit: Math.max(0, Math.min(100, Math.round(Number(r && r.fit) || 0))),
+    why: str(r && r.why,240),
+    keywords: arr(r && r.keywords).map(k=>str(k,40)).filter(Boolean).slice(0,4)
+  })).filter(r=>r.title).slice(0,8);
+  const dom = v => { const d = str(v,80).toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,""); return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(d) ? d : null; };
+  const companies = arr(obj.companies).map(c=>({name:str(c && c.name,60), domain:dom(c && c.domain), why:str(c && c.why,140)})).filter(c=>c.name).slice(0,10);
+  return {profile:p, roles, companies};
+}
+
+function showLoading(){
+  const box = $("results"); box.replaceChildren();
+  $("banner").replaceChildren(); $("stats").textContent = "";
+  const st = h("div",{class:"status"}, "Reading your CV…");
+  box.append(st);
+  for(let i=0;i<4;i++) box.append(h("div",{class:"skel"}, h("div",{style:"width:38%"}), h("div",{style:"width:78%;height:20px"}), h("div",{style:"width:92%"}), h("div",{style:"width:60%"})));
+  const msgs = ["Reading your CV…","Counting your real experience…","Matching you to job titles recruiters post…","Picking companies that hire at your level…"];
+  let i = 0;
+  return setInterval(()=>{ i = Math.min(i+1, msgs.length-1); st.textContent = msgs[i]; }, 3500);
+}
+
+$("gobtn").addEventListener("click", async ()=>{
+  showErr("");
+  const cv = (state.cvText || $("cvtext").value || "").trim();
+  if(cv.length < 200){ showErr("Add your CV first: drop a file above or paste the text."); return; }
+  const sample = await getSample();
+  const btn = $("gobtn"); btn.disabled = true; btn.textContent = "Analysing your CV…";
+  const timer = showLoading();
+  try{
+    let out;
+    if(!sample){
+      await new Promise(r=>setTimeout(r, 600));
+      const la = localAnalyze(cv);
+      out = Object.assign({}, la.profile, {roles:la.roles, companies:la.companies});
+    } else try{
+      out = await sample.json(buildPrompt(cv), {modelTier:"default"});
+    }catch(e){
+      if(e && e.code === "not_granted") throw new Error("Claude wasn't allowed to read the CV. Press Find matching jobs again and allow it.");
+      if(e && e.code === "rate_limited") throw new Error("Too many requests just now. Wait a minute and try again.");
+      throw e;
+    }
+    if(typeof out === "string"){ try{ out = JSON.parse(out); }catch(_){ } }
+    if(!out || typeof out !== "object") throw new Error("Claude's answer couldn't be read. Try again.");
+    const c = clean(out);
+    if(!c.roles.length) throw new Error("No matching job titles found. Check that the CV text is complete, or add titles with the search box.");
+    state.isExample = false;
+    state.profile = c.profile; state.roles = c.roles; state.companies = c.companies; state.analyzer = sample ? "claude" : "device";
+    state.expOverride = null; state.tab = "live"; state.showAll = false;
+    save();
+    loadLive(false);
+  }catch(e){
+    showErr((e && e.message) || "Something went wrong. Try again.");
+  }finally{
+    clearInterval(timer);
+    btn.disabled = false; btn.textContent = "Find matching jobs";
+    renderAll();
+  }
+});
+
+renderAll();
+loadLive(false);
+})();
+</script>
+</body>
+</html>
